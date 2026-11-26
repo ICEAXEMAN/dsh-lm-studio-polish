@@ -76,6 +76,7 @@ DSH 主力模型（思考 + 工具调用，完全不动）
 7. **`replayState` 必须丢弃**。改写后的块与提供方的块级回放对不上（`assembler.ts` 只校验数量不校验内容）。
 8. **`ctx.webServer.register` 必须包在 `ctx.effect` 里**。不包会在插件重载时留下幽灵路由，下一次激活直接报 `duplicate prefix route`（已经踩过，见 §8）。
 9. **API 基路径不要再改回 `/api/lm-studio-polish`**：那个前缀在进程里可能还留着旧注册（重启后消失）；当前用 `/api/lm-studio-polish/v1`。
+10. **B 站插件的内部超时才是真实上限**。`dsh-bili-whale/lib/scheduler.js` 里 social/affect/diary 三处用 `createHostTextComplete(ctx)`，默认 `timeoutMs = 30000`；不抬它，`foreignTimeoutMs` 设多大都白搭（B 站会先 abort，任务还会记一次失败）。本机已用 `tools/patch-bili-timeout.mjs` 改成 65000 并留了 `.bak-before-timeout` 备份；**B 站插件更新会覆盖，更新后重跑一次**，`--revert` 可还原。
 
 ---
 
