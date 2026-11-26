@@ -77,6 +77,8 @@ DSH 主力模型（思考 + 工具调用，完全不动）
 8. **`ctx.webServer.register` 必须包在 `ctx.effect` 里**。不包会在插件重载时留下幽灵路由，下一次激活直接报 `duplicate prefix route`（已经踩过，见 §8）。
 9. **API 基路径不要再改回 `/api/lm-studio-polish`**：那个前缀在进程里可能还留着旧注册（重启后消失）；当前用 `/api/lm-studio-polish/v1`。
 10. **B 站插件的内部超时才是真实上限**。`dsh-bili-whale/lib/scheduler.js` 里 social/affect/diary 三处用 `createHostTextComplete(ctx)`，默认 `timeoutMs = 30000`；不抬它，`foreignTimeoutMs` 设多大都白搭（B 站会先 abort，任务还会记一次失败）。本机已用 `tools/patch-bili-timeout.mjs` 改成 65000 并留了 `.bak-before-timeout` 备份；**B 站插件更新会覆盖，更新后重跑一次**，`--revert` 可还原。
+11. **B 站私信的出站润色是独立补丁**：`tools/patch-bili-dm-polish.mjs` 在 `tools/commands/dm.mjs` 的 `MSG` 定稿处插一次 `polishOutgoing()`（POST `/reuse`）。它依赖三件东西：`$DSH_HOME/lm-studio-polish.origin`（插件启动时写下的 API 基址）、`/reuse` 端点、以及 `polishCache`（同一原文只润一次，界面与私信共享同一字符串）。补丁是幂等+带备份的；B 站更新后同样要重跑。
+12. **不要把 B 站会话从润色里剔除**（`skipBiliSessions` 保持 false）：剔除后界面显示原文、而私信被 `/reuse` 润过，两边又会分叉。正确组合是「会话照常润色 + 出站复用缓存」。
 
 ---
 
