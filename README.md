@@ -63,6 +63,13 @@
 - 只有**全局**开关，暂时没有按会话 / 按项目开关
 
 更多说明见 [docs/DETAIL.md](docs/DETAIL.md)。
+## 交接与开发
+
+- [docs/HANDOVER.md](docs/HANDOVER.md)：给下一个维护者的交接手册（架构、不变量、坑、验证方法、待办）
+- `tools/fake-lm.mjs`：假 LM Studio，不占真模型就能跑完整条管线
+  ```bash
+  node tools/fake-lm.mjs        # 打印端口后常驻，把 baseUrl 指过去即可
+  ```
 
 ## License
 

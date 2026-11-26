@@ -17,9 +17,11 @@
     "lib",
     "locale",
     "docs",
+    "tools",
     "cordis.patch.yml",
     "icon.svg",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "dsh": {
     "bundle": {
