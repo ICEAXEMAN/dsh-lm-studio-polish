@@ -69,11 +69,13 @@ DSH 主力模型（思考 + 工具调用，完全不动）
 
 1. **`block-end` 是权威**。装配器 `BlockAssembler` 用 block-end 的 block 覆盖一切；我们必须在发 `block-end` 前把 `text` 换成「我们实际发出去的文本」。否则 UI 与日志会分叉。
 2. **`⟦n⟧` 占位符必须按序、等量、原样**。少一个、换序、模型自作主张翻译占位符，一律降级为原文（`fromTemplate` 返回 undefined → `violation` 报 `marker`）。
-3. **`options.purpose !== undefined` 一律放行**。这是唯一区分「对话」和「旁路请求（session-title / compaction）」的依据。
-4. **任何失败都要回放原文**，绝不能把半截改写或异常抛给 loop。异常只在 `upstream` 自己抛时向上传播。
-5. **`replayState` 必须丢弃**。改写后的块与提供方的块级回放对不上（`assembler.ts` 只校验数量不校验内容）。
-6. **`ctx.webServer.register` 必须包在 `ctx.effect` 里**。不包会在插件重载时留下幽灵路由，下一次激活直接报 `duplicate prefix route`（已经踩过，见 §8）。
-7. **API 基路径不要再改回 `/api/lm-studio-polish`**：那个前缀在进程里可能还留着旧注册（重启后消失）；当前用 `/api/lm-studio-polish/v1`。
+3. **门控三档**：`purpose !== undefined` → 放行（旁路请求）；`sessionId !== undefined` → 润色（会话）；两者都没有 → 只有 `polishForeign` 开着才润色（其他插件的工具型补全）。
+4. **数据不润色**：`looksLikeData()` 以 `{` `[` `<` 或 json/yaml/csv 围栏开头即判为数据，直接透传且不发请求。B 站插件的 affect/formation/social worker 靠这条活命。
+5. **其他插件用更紧的预算**：`foreignTimeoutMs`（默认 20 s，B 站内部 30 s）取 `min(单次超时, foreignTimeoutMs)`；实测超过预算 75% 后自动跳过（`slow-model`），避免每条都白等。
+6. **任何失败都要回放原文**，绝不能把半截改写或异常抛给 loop。异常只在 `upstream` 自己抛时向上传播。
+7. **`replayState` 必须丢弃**。改写后的块与提供方的块级回放对不上（`assembler.ts` 只校验数量不校验内容）。
+8. **`ctx.webServer.register` 必须包在 `ctx.effect` 里**。不包会在插件重载时留下幽灵路由，下一次激活直接报 `duplicate prefix route`（已经踩过，见 §8）。
+9. **API 基路径不要再改回 `/api/lm-studio-polish`**：那个前缀在进程里可能还留着旧注册（重启后消失）；当前用 `/api/lm-studio-polish/v1`。
 
 ---
 
