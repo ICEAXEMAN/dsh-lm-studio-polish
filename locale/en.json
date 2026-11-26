@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "LM Studio style polish",
+    "description": "Hand the final wording to a local LM Studio model: DSH keeps thinking and calling tools, while a second local model rewrites only how the answer reads. Code, paths, commands and numbers pass through untouched."
+  }
+}
